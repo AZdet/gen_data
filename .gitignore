@@ -1,5 +1,6 @@
-.vscode/*
-full/*
-full_masks/*
-occlusion/*
-occlusin_mask/*
+.vscode/
+full/
+full_mask/
+occlusion/
+occlusion_mask/
+*.zip

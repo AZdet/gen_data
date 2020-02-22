@@ -2,6 +2,7 @@ from pathlib import Path
 import numpy as np
 from skimage import transform as ski_tf
 import matplotlib.pyplot as plt
+
 def getDataLabelPath(folder1, folder2):
     gen1 = Path(folder1).glob('*.png')
     while True:
@@ -11,6 +12,11 @@ def getDataLabelPath(folder1, folder2):
         file2_path = path2 / file1_name
         if file2_path.exists():
             yield file1_path, file2_path
+
+def getDataPath(folder):
+    gen = Path(folder).glob('*.png')
+    while True:
+        yield next(gen)
 
 def getBBoxFromMask(mask):
     Y, X = np.mgrid[0:mask.shape[0], 0:mask.shape[1]]
@@ -33,7 +39,7 @@ def transform(mask):
     rot = 4 * np.pi / 180 # in radian
     scale = 0.3
     trans = lambda x: ski_tf.SimilarityTransform(scale=scale, rotation=rot, translation=(tx, ty)).inverse(x)
-    mask2 = ski_tf.warp(mask, trans, order=2)
+    mask2 = ski_tf.warp(mask, trans, order=3)
     return mask2
 
 
@@ -59,11 +65,11 @@ def genOccluded(mask1, img1, mask2, out_size=128):
             if w > h:
                 scale = out_size / w
                 res_scale = ski_tf.rescale(res, scale)
-                out[out_size//2 - h//2: out_size//2 + h//2 + 1, :] = res_scale
+                out[out_size//2 - h//2: res_scale.shape[0]//2 + res_scale.shape[0]//2, :] = res_scale
             else:
                 scale = out_size / h
                 res_scale = ski_tf.rescale(res, scale)
-                out[:, out_size//2 - w//2: out_size//2 + w//2] = res_scale
+                out[:, out_size//2 - res_scale.shape[1]//2: out_size//2 + res_scale.shape[1]//2] = res_scale
             break
     return out
 
