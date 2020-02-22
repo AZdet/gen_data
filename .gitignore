@@ -1,0 +1,5 @@
+.vscode/*
+full/*
+full_masks/*
+occlusion/*
+occlusin_mask/*
