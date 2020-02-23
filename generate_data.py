@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from numpy.random import randint, rand
 import os
 
+eps = 3e-2 # threshold for mask to be taken as 1
+
+
 def getDataLabelPath(folder1, folder2):
     gen1 = Path(folder1).glob('*.png')
     while True:
@@ -30,10 +33,10 @@ def getPathFromTxt(txt):
 
 
 
-def getBBoxFromMask(mask):
+def getBBoxFromMask(mask, eps=eps):
     Y, X = np.mgrid[0:mask.shape[0], 0:mask.shape[1]]
-    mask_X = X[mask > 0.5]
-    mask_Y = Y[mask > 0.5]
+    mask_X = X[mask > eps]
+    mask_Y = Y[mask > eps]
     return np.array([[mask_X.min(), mask_Y.min()], [mask_X.max(), mask_Y.max()]])
 
 def unionBBox(bbox1, bbox2, low=0.1, high=0.9):
@@ -92,16 +95,15 @@ def genOccluded(mask1, img1, mask2, mode="p2c", out_size=128):
     while True:
         mask2_transformed = transform(mask2, mode)
         fig, ax = plt.subplots(1, 2)
-        ax[0].imshow(mask2)
-        ax[1].imshow(mask2_transformed)
-        plt.show()
-        #import pdb; pdb.set_trace()
+        # ax[0].imshow(mask2)
+        # ax[1].imshow(mask2_transformed)
+        # plt.show()
         bbox1 = getBBoxFromMask(mask1)
         bbox2 = getBBoxFromMask(mask2_transformed)
         union_area = unionBBox(bbox1, bbox2)
         if union_area is not None:
             res = img1
-            res[mask2_transformed > 0.5] = 0  # occlusion effect
+            res[mask2_transformed > eps] = 0  # occlusion effect
             res = res[union_area[0,1] : union_area[1,1], union_area[0,0]:union_area[1,0]]
             plt.imshow(res)
             plt.show()
@@ -124,14 +126,17 @@ def generateData():
     person_gen = getPathFromTxt('real_person.txt')
     img_folder = 'full'
     mask_folder = 'full_mask'
+    out_dir = "out"
+    out_mask_dir = "out_mask"
     for car_path, person_path in zip(car_gen, person_gen):
         car_img = plt.imread(os.path.join(img_folder, car_path))
         car_mask = plt.imread(os.path.join(mask_folder, car_path))[:,:,0]
         person_mask = plt.imread(os.path.join(img_folder, person_path))[:,:,0]
         out = genOccluded(car_mask, car_img, person_mask)
-        plt.imshow(out)
-        plt.show()
-        break
+        out_mask = out > eps
+        plt.imsave(os.path.join(out_dir, car_path), out)
+        plt.imsave(os.path.join(out_mask_dir, out_mask), out_mask)
+        
 
 
 if __name__ == "__main__":
