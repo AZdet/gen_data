@@ -4,3 +4,10 @@ full_mask/
 occlusion/
 occlusion_mask/
 *.zip
+out*/
+train/
+test/
+random/
+train/
+mask_*/
+2p2c/

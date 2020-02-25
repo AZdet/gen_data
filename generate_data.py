@@ -111,11 +111,11 @@ def transform(mask, mode="p2c"):
     elif mode == "2p2c1":
         tx, ty = randint(-10, 20), randint(30, 60)
         rot = 0
-        scale = rand(0.5, 0.8)
+        scale = rand() * 0.3 + 0.5
     elif mode == "2p2c2":
         tx, ty = randint(40, 70), randint(30, 60)
         rot = 0
-        scale = rand(0.5, 0.8)
+        scale = rand() * 0.3 + 0.5
     else:
         raise NotImplementedError
 
@@ -331,15 +331,13 @@ def get_random_mask(mask1):
 
 if __name__ == "__main__":
     for mode in ['p2c']:
-        generateData(mode, 100000-15345, 'train')
-        generateData(mode, 10000, 'test')
-    for mode in ['c2p']:
-        generateData(mode, 50000, 'train')
-        generateData(mode, 5000, 'test')
+        generateData(mode, 1000, 'train')
+    # for mode in ['c2p']:
+    #     generateData(mode, 50000, 'train')
+    #     generateData(mode, 5000, 'test')
 
-    for mode in ['c2c', 'p2p']:
-        generateData(mode, 80000, 'train')
-        generateData(mode, 10000, 'test')
+
+    
         # gen = getDataPath('out_'+mode)
         # length = 5
         # imgs = []
